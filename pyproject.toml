@@ -14,7 +14,8 @@ dependencies = [
     "pydantic (>=2.13.4,<3.0.0)",
     "pydantic-settings (>=2.15.0,<3.0.0)",
     "alembic (>=1.19.1,<2.0.0)",
-    "psycopg2-binary (>=2.9.12,<3.0.0)"
+    "psycopg2-binary (>=2.9.12,<3.0.0)",
+    "ortools (>=9.15.6755,<10.0.0)"
 ]
 
 
