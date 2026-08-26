@@ -1,7 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
-from typing import Optional
 
 class TaskCreate(BaseModel):
     name: str
