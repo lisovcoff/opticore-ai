@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.api.resources import router as resources_router
 from app.api.tasks import router as tasks_router
 from app.api.optimizer import router as optimizer_router
+from app.api.nlp import router as nlp_router
 
 app = FastAPI(
     title="OptiCore AI",
@@ -13,6 +14,7 @@ app = FastAPI(
 app.include_router(resources_router, prefix="/api/v1")
 app.include_router(tasks_router, prefix="/api/v1")
 app.include_router(optimizer_router, prefix="/api/v1")
+app.include_router(nlp_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
