@@ -4,7 +4,7 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.models.resource import ResourceModel
 from app.models.task import TaskModel
-from app.services.optimizer import solve_resource_allocation
+from app.services.tasks_worker import run_optimization_task
 
 router = APIRouter(prefix="/optimize", tags=["Optimization"])
 
@@ -47,9 +47,10 @@ async def run_optimization(db: AsyncSession = Depends(get_db)):
     if not tasks_data:
         raise HTTPException(status_code=400, detail="No pending tasks available.")
 
-    optimization_result = solve_resource_allocation(resources_data, tasks_data)
+    task = run_optimization_task.delay(resources_data, tasks_data)
 
     return {
-        "message": "Optimization completed successfully",
-        "result": optimization_result
+        "message": "Optimization task dispatched successfully",
+        "task_id": task.id,
+        "status": "queued"
     }
