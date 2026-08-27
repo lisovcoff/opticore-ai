@@ -1,38 +1,46 @@
 import os
+import json
 from dotenv import load_dotenv
 from openai import OpenAI
+from app.schemas.nlp_schemas import ParsedResourceCommand
 
 load_dotenv()
 
-# Initialize the OpenAI client pointing to Google's Gemini API base URL
-# Gemini provides an OpenAI-compatible endpoint for developers
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
 )
 
-def parse_natural_language_command(prompt: str) -> str:
+def parse_natural_language_command(prompt: str) -> dict:
     """
-    Sends a natural language prompt to Google Gemini 
-    and asks it to extract infrastructure commands or analyze tasks.
+    Parses a natural language prompt into a structured JSON 
+    matching the ParsedResourceCommand schema using Gemini.
     """
+    system_prompt = (
+        "You are an AI assistant for OptiCore AI, an infrastructure optimization engine. "
+        "Extract infrastructure commands from the user prompt and return a valid JSON object "
+        "matching these fields if applicable: action ('create_resource' or 'create_task'), "
+        "resource_name, cpu_capacity, ram_capacity, cost_per_hour, "
+        "task_name, cpu_required, ram_required, priority."
+    )
+
     try:
         response = client.chat.completions.create(
-            # Using the fast and free-tier friendly Gemini 2.5 Flash model
             model="gemini-3.6-flash",
             messages=[
-                {
-                    "role": "system", 
-                    "content": "You are an AI assistant for OptiCore AI, an infrastructure optimization engine. "
-                               "Your job is to help users manage computing resources and tasks using natural language."
-                },
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
             ],
-            temperature=0.2
+            response_format={"type": "json_object"},
+            temperature=0.1
         )
-        return response.choices[0].message.content
+        
+        content = response.choices[0].message.content
+        parsed_data = json.loads(content)
+        
+        # Validate data against Pydantic schema
+        validated_command = ParsedResourceCommand(**parsed_data)
+        return validated_command.model_dump()
+        
     except Exception as e:
-        return f"Error communicating with Gemini LLM: {str(e)}"
+        return {"error": f"Failed to parse command: {str(e)}"}
