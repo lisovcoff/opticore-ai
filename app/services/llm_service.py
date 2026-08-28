@@ -18,10 +18,14 @@ def parse_natural_language_command(prompt: str) -> dict:
     """
     system_prompt = (
         "You are an AI assistant for OptiCore AI, an infrastructure optimization engine. "
-        "Extract infrastructure commands from the user prompt and return a valid JSON object "
-        "matching these fields if applicable: action ('create_resource' or 'create_task'), "
-        "resource_name, cpu_capacity, ram_capacity, cost_per_hour, "
-        "task_name, cpu_required, ram_required, priority."
+        "Your job is to parse user commands written in either Russian or English. "
+        "Extract infrastructure commands and return a valid JSON object matching these fields if applicable: "
+        "action ('create_resource' or 'create_task'), "
+        "resource_name, "
+        "cpu_capacity (integer only, e.g. 16 instead of '16 cores'), "
+        "ram_capacity (integer only in GB, e.g. 64 instead of '64GB' or '64ГБ'), "
+        "cost_per_hour (float), "
+        "task_name, cpu_required (integer), ram_required (integer), priority (integer)."
     )
 
     try:
